@@ -9,7 +9,7 @@ width, height = 300, 300
 
 # Create the canvas surface
 canvas = pygame.display.set_mode((width, height))
-print(type(canvas))
+
 # Fill the canvas with white color
 canvas.fill((255, 255, 255))
 
@@ -44,8 +44,17 @@ def draw_path(canvas:classmethod, path:list, dots:list, drawing:bool, start_pos:
     if drawing and start_pos is not None:
         current_pos = Vector2(pygame.mouse.get_pos())
         pygame.draw.line(canvas, (0, 0, 0), path[-1], current_pos, 2)
+        # Draw the line while drawing is True
+    if drawing and start_pos is not None:
+        current_pos = Vector2(pygame.mouse.get_pos())
+        pygame.draw.line(canvas, (0, 0, 0), path[-1], current_pos, 2)
+        radians = calculate_angle(start_pos, current_pos)
+        deg_text = f"Deg: {radians:.2f}"
+        font = pygame.font.Font(None, 20)
+        text = font.render(deg_text, True, (0, 0, 0))
+        canvas.blit(text, (current_pos.x + 10, current_pos.y + 10))
 
-def calculate_angle(start_pos, end_pos):
+def calculate_angle(start_pos:list, end_pos:list)->float:
     direction = end_pos - start_pos
     angle = math.degrees(math.atan2(direction.y, direction.x))
     return angle
@@ -60,12 +69,14 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 3:  # Right mouse button
                 drawing = False
+                right_click_pressed = False
             elif event.button == 1:  # Left mouse button
                 if not drawing:
                     drawing = True
                     start_pos = Vector2(event.pos)
                     path.append(start_pos)
                     dots.append(start_pos)
+
                 else:
                     end_pos = Vector2(event.pos)
                     path.append(end_pos)
