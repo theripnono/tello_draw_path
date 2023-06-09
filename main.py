@@ -44,15 +44,16 @@ def draw_path(canvas:classmethod, path:list, dots:list, drawing:bool, start_pos:
     if drawing and start_pos is not None:
         current_pos = Vector2(pygame.mouse.get_pos())
         pygame.draw.line(canvas, (0, 0, 0), path[-1], current_pos, 2)
-        # Draw the line while drawing is True
-    if drawing and start_pos is not None:
-        current_pos = Vector2(pygame.mouse.get_pos())
-        pygame.draw.line(canvas, (0, 0, 0), path[-1], current_pos, 2)
-        radians = calculate_angle(start_pos, current_pos)
-        deg_text = f"Deg: {radians:.2f}"
-        font = pygame.font.Font(None, 20)
-        text = font.render(deg_text, True, (0, 0, 0))
-        canvas.blit(text, (current_pos.x + 10, current_pos.y + 10))
+
+    # Draw the line while drawing is True
+        # Calculate and display the angle
+        if len(path) >= 2:
+            angle = calculate_angle(path[-2], path[-1])
+            rad_text = f"Rad: {angle:.2f}"
+            font = pygame.font.Font(None, 20)
+            text = font.render(rad_text, True, (0, 0, 0))
+            canvas.blit(text, (current_pos.x + 10, current_pos.y + 10))
+
 
 def calculate_angle(start_pos:list, end_pos:list)->float:
     direction = end_pos - start_pos
@@ -75,7 +76,8 @@ while running:
                     drawing = True
                     start_pos = Vector2(event.pos)
                     path.append(start_pos)
-                    dots.append(start_pos)
+                    if start_pos is not None:
+                        dots.append(start_pos)
 
                 else:
                     end_pos = Vector2(event.pos)
