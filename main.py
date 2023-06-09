@@ -45,8 +45,9 @@ def draw_path(canvas:classmethod, path:list, dots:list, drawing:bool, start_pos:
         current_pos = Vector2(pygame.mouse.get_pos())
         pygame.draw.line(canvas, (0, 0, 0), path[-1], current_pos, 2)
 
-    # Draw the line while drawing is True
-        # Calculate and display the angle
+
+    # Draw the line while drawing is True Calculate and display the angle
+        # TODO CALCULATE IN REAL TIME ANGLES
         if len(path) >= 2:
             angle = calculate_angle(path[-2], path[-1])
             rad_text = f"Rad: {angle:.2f}"
