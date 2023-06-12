@@ -61,7 +61,40 @@ def calculate_angle(start_pos:list, end_pos:list)->float:
     angle = math.degrees(math.atan2(direction.y, direction.x))
     return angle
 
+def calculate_distance(start_pos, end_pos):
+    """
+    Calculate the distance between two positions
+    :param start_pos: Starting position as a Vector2
+    :param end_pos: Ending position as a Vector2
+    :return: Distance between the positions as a float
+    """
+    direction = end_pos - start_pos
+    distance = direction.length()
+    return distance
 
+def store_segments(path):
+    """
+    Store the segments, their angles, distances, and directions in a dictionary
+    :param path: list of Vector2 objects representing the path
+    :return: dictionary of segments, angles, distances, and directions
+    """
+    segments = {}
+    for i in range(len(path) - 1):
+        start_pos = path[i]
+        end_pos = path[i + 1]
+        direction = end_pos - start_pos
+        angle = calculate_angle(start_pos, end_pos)
+        distance = calculate_distance(start_pos, end_pos)
+        segments[f"Segment {i+1}"] = {
+            "coordinates": {
+                "start_pos": tuple(start_pos),
+                "end_pos": tuple(end_pos)
+            },
+            "vector_results": tuple(direction),
+            "degrees": int(angle),
+            "distance": int(distance)
+        }
+    return segments
 # Game loop
 running = True
 while running:
@@ -85,9 +118,9 @@ while running:
                     path.append(end_pos)
                     dots.append(end_pos)
                     angle = calculate_angle(path[-2], path[-1])
-                    print(f"star_pos: {start_pos}")
-                    print(f"end_pos: {end_pos}")
-                    print(f"Cosine: {angle}")
+                    #print(f"star_pos: {start_pos}")
+                    #print(f"end_pos: {end_pos}")
+                    #print(f"Cosine: {angle}")
 
     # Clear the canvas
     canvas.fill((255, 255, 255))
@@ -95,8 +128,13 @@ while running:
     # Call the function to draw the path, dots, and line
     draw_path(canvas, path, dots, drawing, start_pos)
 
+    # After drawing the path, call the store_segments function
+    tracking_path = store_segments(path)
+
+
     # Update the display
     pygame.display.flip()
 
 # Quit Pygame
 pygame.quit()
+print(tracking_path)
