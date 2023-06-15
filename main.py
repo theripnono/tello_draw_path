@@ -1,6 +1,8 @@
-import pygame, math
+import pygame, math,time
 from pygame.math import Vector2
+from djitellopy import Tello
 
+tello = Tello()
 # Initialize Pygame
 pygame.init()
 
@@ -19,6 +21,10 @@ start_pos = None
 end_pos = None
 path = []  # List to store the drawn path
 dots = []  # List to store the dots representing the path
+
+#Tello speed
+s = 60
+
 
 
 def draw_path(canvas:classmethod, path:list, dots:list, drawing:bool, start_pos:bool)->None:
@@ -96,6 +102,21 @@ def store_segments(path):
         }
     return segments
 
+def move_tello(tracking_path):
+    tbc = time.sleep(0.01)  # time between commands in seconds
+    degrees = 0
+    distance = 0
+    tracking = tracking_path
+    if tracking:
+        for segment_name, segment_data in tracking_path.items():
+            degrees = segment_data['degrees']
+            tbc
+            distance = segment_data['distance']
+            #tello.rotate_clockwise(degrees)  # Rotate clockwise
+            tbc
+            #tello.move_forward(distance) # Move forward
+
+
 
 show_segments = False
 
@@ -107,6 +128,8 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_h:
                 show_segments = True
+            elif event.type == pygame.K_ESCAPE: #STOPS MOTORS
+                tello.emergency()
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_h:
                 show_segments = False
@@ -130,10 +153,11 @@ while running:
                     #print(f"star_pos: {start_pos}")
                     #print(f"end_pos: {end_pos}")
                     #print(f"Cosine: {angle}")
+
     if show_segments:
         tracking_path = store_segments(path)
         print(tracking_path)
-
+        move_tello(tracking_path)
     # Clear the canvas
     canvas.fill((255, 255, 255))
 
@@ -145,4 +169,3 @@ while running:
 
 # Quit Pygame
 pygame.quit()
-print(tracking_path)
