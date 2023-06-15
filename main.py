@@ -74,7 +74,7 @@ def calculate_distance(start_pos, end_pos):
 
 def store_segments(path):
     """
-    Store the segments, their angles, distances, and directions in a dictionary
+    Store the path drawed in pygame
     :param path: list of Vector2 objects representing the path
     :return: dictionary of segments, angles, distances, and directions
     """
@@ -95,12 +95,21 @@ def store_segments(path):
             "distance": int(distance)
         }
     return segments
-# Game loop
+
+
+show_segments = False
+
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_h:
+                show_segments = True
+        elif event.type == pygame.KEYUP:
+            if event.key == pygame.K_h:
+                show_segments = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 3:  # Right mouse button
                 drawing = False
@@ -121,16 +130,15 @@ while running:
                     #print(f"star_pos: {start_pos}")
                     #print(f"end_pos: {end_pos}")
                     #print(f"Cosine: {angle}")
+    if show_segments:
+        tracking_path = store_segments(path)
+        print(tracking_path)
 
     # Clear the canvas
     canvas.fill((255, 255, 255))
 
     # Call the function to draw the path, dots, and line
     draw_path(canvas, path, dots, drawing, start_pos)
-
-    # After drawing the path, call the store_segments function
-    tracking_path = store_segments(path)
-
 
     # Update the display
     pygame.display.flip()
