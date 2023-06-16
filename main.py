@@ -43,7 +43,7 @@ def draw_path(canvas, path, drone_image, drawing, start_pos):
         pygame.draw.lines(canvas, (0, 0, 0), False, path, 2)
 
     # Draw the drone image at each path position with rotation based on current mouse position
-    for pos in path:
+    for pos in path[:-1]:
         # Calculate the angle between the drone position and current mouse position
         current_pos = Vector2(pygame.mouse.get_pos())
         direction = current_pos - pos
@@ -58,6 +58,25 @@ def draw_path(canvas, path, drone_image, drawing, start_pos):
 
         # Draw the rotated drone image
         canvas.blit(rotated_image, image_pos)
+
+    # Draw the drone image at the latest position (current mouse position)
+    if path:
+        current_pos = path[-1]
+
+        # Calculate the angle between the drone position and current mouse position
+        if start_pos is not None:
+            direction = Vector2(pygame.mouse.get_pos()) - current_pos
+            angle = math.degrees(math.atan2(direction.y, direction.x))
+
+            # Adjust the angle by adding 90 degrees
+            angle += 90
+
+            # Rotate the drone image
+            rotated_image = pygame.transform.rotate(drone_image, -angle)
+            image_pos = Vector2(current_pos) - Vector2(rotated_image.get_size()) / 2
+
+            # Draw the rotated drone image
+            canvas.blit(rotated_image, image_pos)
 
     # Draw the line while drawing is True
     if drawing and start_pos is not None:
