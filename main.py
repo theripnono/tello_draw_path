@@ -5,11 +5,11 @@ from pygame.math import Vector2
 pygame.init()
 
 # Set the width and height of the canvas
-width, height = 300, 300
+width, height = 400, 400
 
 # Create the canvas surface
 canvas = pygame.display.set_mode((width, height))
-
+image_path = r'C:\Users\Theri\Escritorio\tello_draw_path\drone.png'
 # Fill the canvas with white color
 canvas.fill((255, 255, 255))
 
@@ -20,34 +20,51 @@ end_pos = None
 path = []  # List to store the drawn path
 dots = []  # List to store the dots representing the path
 
+static_drone = False  # Variable to track the static drone stat
 
-def draw_path(canvas:classmethod, path:list, dots:list, drawing:bool, start_pos:bool)->None:
-    """
-    Draw the segments into the canvas
-    :param canvas:
-    :param path:
-    :param dots:
-    :param drawing:
-    :param start_pos:
-    :return:
-    """
 
+
+def load_image(image_path,resize_width,resize_height):
+    # Load the drone image
+    drone_image = pygame.image.load(image_path)
+
+    # Resize the image
+    drone_image = pygame.transform.scale(drone_image, (resize_width, resize_height))
+
+    return drone_image
+
+drone_image = load_image(image_path, 50, 50)  # Load the drone image
+
+
+
+def draw_path(canvas, path, drone_image, drawing, start_pos):
     # Draw the path
     if len(path) > 1:
         pygame.draw.lines(canvas, (0, 0, 0), False, path, 2)
 
-    # Draw the dots
-    for dot in dots:
-        pygame.draw.circle(canvas, (255, 0, 0), (int(dot.x), int(dot.y)), 3)
+    # Draw the drone image at each path position with rotation based on current mouse position
+    for pos in path:
+        # Calculate the angle between the drone position and current mouse position
+        current_pos = Vector2(pygame.mouse.get_pos())
+        direction = current_pos - pos
+        angle = math.degrees(math.atan2(direction.y, direction.x))
+
+        # Adjust the angle by adding 90 degrees
+        angle += 90
+
+        # Rotate the drone image
+        rotated_image = pygame.transform.rotate(drone_image, -angle)
+        image_pos = Vector2(pos) - Vector2(rotated_image.get_size()) / 2
+
+        # Draw the rotated drone image
+        canvas.blit(rotated_image, image_pos)
 
     # Draw the line while drawing is True
     if drawing and start_pos is not None:
         current_pos = Vector2(pygame.mouse.get_pos())
         pygame.draw.line(canvas, (0, 0, 0), path[-1], current_pos, 2)
 
-
-    # Draw the line while drawing is True Calculate and display the angle
-        # TODO CALCULATE IN REAL TIME ANGLES
+        # Calculate and display the angle
         if len(path) >= 2:
             angle = calculate_angle(path[-2], path[-1])
             rad_text = f"Rad: {angle:.2f}"
@@ -62,22 +79,13 @@ def calculate_angle(start_pos:list, end_pos:list)->float:
     return angle
 
 def calculate_distance(start_pos, end_pos):
-    """
-    Calculate the distance between two positions
-    :param start_pos: Starting position as a Vector2
-    :param end_pos: Ending position as a Vector2
-    :return: Distance between the positions as a float
-    """
+
     direction = end_pos - start_pos
     distance = direction.length()
     return distance
 
 def store_segments(path):
-    """
-    Store the path drawed in pygame
-    :param path: list of Vector2 objects representing the path
-    :return: dictionary of segments, angles, distances, and directions
-    """
+
     segments = {}
     for i in range(len(path) - 1):
         start_pos = path[i]
@@ -138,7 +146,7 @@ while running:
     canvas.fill((255, 255, 255))
 
     # Call the function to draw the path, dots, and line
-    draw_path(canvas, path, dots, drawing, start_pos)
+    draw_path(canvas, path, drone_image, drawing, start_pos)
 
     # Update the display
     pygame.display.flip()
