@@ -22,15 +22,6 @@ dots = []  # List to store the dots representing the path
 
 
 def draw_path(canvas:classmethod, path:list, dots:list, drawing:bool, start_pos:bool)->None:
-    """
-    Draw the segments into the canvas
-    :param canvas:
-    :param path:
-    :param dots:
-    :param drawing:
-    :param start_pos:
-    :return:
-    """
 
     # Draw the path
     if len(path) > 1:
@@ -50,7 +41,7 @@ def draw_path(canvas:classmethod, path:list, dots:list, drawing:bool, start_pos:
         # TODO CALCULATE IN REAL TIME ANGLES
         if len(path) >= 2:
             angle = calculate_angle(path[-2], path[-1])
-            rad_text = f"Rad: {angle:.2f}"
+            rad_text = f"Degree: {angle:.2f}"
             font = pygame.font.Font(None, 20)
             text = font.render(rad_text, True, (0, 0, 0))
             canvas.blit(text, (current_pos.x + 10, current_pos.y + 10))
@@ -62,22 +53,13 @@ def calculate_angle(start_pos:list, end_pos:list)->float:
     return angle
 
 def calculate_distance(start_pos, end_pos):
-    """
-    Calculate the distance between two positions
-    :param start_pos: Starting position as a Vector2
-    :param end_pos: Ending position as a Vector2
-    :return: Distance between the positions as a float
-    """
+
     direction = end_pos - start_pos
     distance = direction.length()
     return distance
 
 def store_segments(path):
-    """
-    Store the path drawed in pygame
-    :param path: list of Vector2 objects representing the path
-    :return: dictionary of segments, angles, distances, and directions
-    """
+
     segments = {}
     for i in range(len(path) - 1):
         start_pos = path[i]
