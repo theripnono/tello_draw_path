@@ -1,10 +1,4 @@
-"""
-The initial code is based on the RobotAndCode YT video.
-Big thanks to him to show the bases of the path planning GUI.
-"""
-
 import pygame, math, json
-
 # Initialize Pygame
 pygame.init()
 
@@ -33,6 +27,15 @@ path = []
 index = 0
 drawing = False
 
+#Set variables for buttons
+font = pygame.font.SysFont('Arial', 20)
+objects = []
+
+#Set Tello's Speed
+
+ms = 100
+ns = 60
+ss =  30
 
 class Background(pygame.sprite.Sprite):
 
@@ -43,6 +46,60 @@ class Background(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.left, self.rect.top = location
 
+class Button():
+    def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.onclickFunction = onclickFunction
+        self.onePress = onePress
+
+        self.fillColors = {
+            'normal': '#555555',
+            'hover': '#666666',
+            'pressed': '#333333',
+        }
+
+        self.buttonSurface = pygame.Surface((self.width, self.height))
+        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+
+        self.buttonSurf = font.render(buttonText, True, (20, 20, 20))
+
+        self.alreadyPressed = False
+
+        objects.append(self)
+    def process(self):
+
+        mousePos = pygame.mouse.get_pos()
+
+        self.buttonSurface.fill(self.fillColors['normal'])
+
+        rounding_radius = 10
+        if self.buttonRect.collidepoint(mousePos):
+            self.buttonSurface.fill(self.fillColors['hover'])
+
+
+            if pygame.mouse.get_pressed(num_buttons=3)[2]: # Right button
+                self.buttonSurface.fill(self.fillColors['pressed'])
+
+                if self.onePress:
+                    self.onclickFunction()
+
+                elif not self.alreadyPressed:
+                    self.onclickFunction()
+                    self.alreadyPressed = True
+
+            else:
+                self.alreadyPressed = False
+
+        self.buttonSurface.blit(self.buttonSurf, [
+            self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
+            self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
+        ])
+        window.blit(self.buttonSurface, self.buttonRect)
+def myFunction():
+    print('Button Pressed')
 
 def get_distance(p0: tuple, p1: tuple) -> int:
     """
@@ -81,10 +138,18 @@ def get_angle(p0: tuple, p1: tuple, p_ref: tuple) -> float:
 
     return angle
 
+customButton = Button(10,  20, 70, 40, 'Forward', myFunction)
+customButton = Button(100, 20, 70, 40, 'Left', myFunction)
+customButton = Button(200, 20, 70, 40, 'Right', myFunction)
+customButton = Button(300, 20, 90, 40, 'Max_Speed', myFunction)
+customButton = Button(420, 20, 110, 40, 'Normal_Speed', myFunction)
+customButton = Button(560, 20, 100, 40, 'Slow_Speed', myFunction)
 
 # Load Image
 bground = Background('image.png', [0, 0], 1.2)  # The given image can be rescaled change last parameter
 window.blit(bground.image, bground.rect)
+
+
 
 running = True
 while running:
@@ -92,16 +157,20 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            drawing = True
-            pos = pygame.mouse.get_pos()
-            path.append(pos)
+            if event.button == 1:
+                drawing = True
+                pos = pygame.mouse.get_pos()
+                path.append(pos)
         elif event.type == pygame.MOUSEBUTTONUP:
-            drawing = False
+            if event.button == 1:  # Left button
+                drawing = False
 
-            if index > 0:
-                pygame.draw.line(window, black, path[index - 1], pos, 2)
-            index += 1
+                if index > 0:
+                    pygame.draw.line(window, black, path[index - 1], pos, 2)
+                index += 1
 
+    for object in objects:
+        object.process()
     pygame.display.update()
 
 #Append first p_ref
